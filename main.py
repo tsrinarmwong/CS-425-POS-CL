@@ -1,0 +1,53 @@
+import sys
+import mysql.connector
+from tabulate import tabulate
+
+import Customers
+import db
+
+mydb = mysql.connector.connect(
+        host=db.host,
+        user=db.user,
+        password=db.password,
+        database=db.database
+)
+main_menu = '''
+    Welcome to CS425 POS System. 
+    Please select a menu option:
+        0 Exit Program
+        1 Orders
+        2 Customers
+        3 Discounts
+        4 Employees
+        5 Products
+'''
+
+def handle_main_menu_option(menu_option):
+    if menu_option == "1":  # orders
+        return 1
+    elif menu_option == "2":  # customers
+        Customers.handle_customer_menu_option()
+    elif menu_option == "3":  # discounts
+        return 3
+    elif menu_option == "4":  # employee
+        return 4
+    elif menu_option == "5":  # products
+        return 5
+    else:
+        print("Please enter a valid option")
+
+
+def print_with_formating(description, result):
+    header_names = [i[0] for i in description]
+    print(tabulate(result, headers=header_names))
+
+
+if __name__ == '__main__':
+    should_run = True
+    while should_run:
+        user_input = input(main_menu)
+        if user_input == "0":
+            print("Good bye!")
+            should_run = False
+            sys.exit()
+        handle_main_menu_option(user_input)
