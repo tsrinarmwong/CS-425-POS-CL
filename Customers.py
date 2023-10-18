@@ -78,7 +78,6 @@ def edit_customer():
                 customer_id = int(customer_id)
                 is_valid_input = True
                 customer = get_customer_by_id(customer_id)
-                print(customer)
                 if not customer:
                     print ("No such Customer")
                 else:
@@ -150,7 +149,7 @@ def delete_customer():
                 is_valid_input = True
                 cursor = main.mydb.cursor(prepared=True)
                 stmt = "DELETE FROM Customer WHERE customer_id = %s"
-                cursor.execute(stmt, customer_id)
+                cursor.execute(stmt, [customer_id])
                 main.mydb.commit()
                 print("Customer", customer_id, "deleted. Here is the updated Customer table")
                 get_customers()
