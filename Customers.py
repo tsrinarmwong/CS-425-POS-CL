@@ -117,7 +117,7 @@ def edit_customer():
                             if len(tuple) > 0:
                                 stmt = stmt + ", "
                             stmt = stmt + "loyalty_points = %s"
-                            tuple.append(email)
+                            tuple.append(loyalty_points)
                         if phone_number.upper() != "NA":
                             if len(tuple) > 0:
                                 stmt = stmt + ", "
