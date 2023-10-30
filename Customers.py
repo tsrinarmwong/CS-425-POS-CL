@@ -61,7 +61,7 @@ def add_customer():
         return
     else:
         cursor = main.mydb.cursor(prepared=True)
-        stmt = "INSERT INTO Customers values(%s, %s, %s, %s, %s, %s)"
+        stmt = "INSERT INTO Customer values(%s, %s, %s, %s, %s, %s)"
         tuple = (0, name_first_name, name_last_name, email, loyalty_points, phone_number)
         cursor.execute(stmt, tuple)
         main.mydb.commit()
