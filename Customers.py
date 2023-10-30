@@ -1,3 +1,4 @@
+import mysql.connector
 import main
 customer_menu = '''
     You have selected Customers. 
@@ -65,7 +66,9 @@ def add_customer():
         cursor.execute(stmt, tuple)
         main.mydb.commit()
         print("Customer added. Here is the updated Customer table")
-        get_customers()
+        get_customers() 
+
+
 
 def edit_customer():
     is_valid_input = False
