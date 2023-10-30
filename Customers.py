@@ -70,7 +70,7 @@ def add_customer():
 def edit_customer():
     is_valid_input = False
     while not is_valid_input:
-        customer_id = input("Please input the ID of the customer you want to delete. Press q to return")
+        customer_id = input("Please input the ID of the customer you want to edit. Press q to return")
         if customer_id == "q":
             return
         else:
