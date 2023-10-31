@@ -34,7 +34,7 @@ def handle_main_menu_option(menu_option):
     elif menu_option == "4":  # employee
         return 4
     elif menu_option == "5":  # products
-        return 5
+        Products.handle_product_menu_option()
     else:
         print("Please enter a valid option")
 
