@@ -5,6 +5,7 @@ from tabulate import tabulate
 import Customers
 import discount
 import db
+import employee_dao
 
 mydb = mysql.connector.connect(
         host=db.host,
@@ -32,7 +33,7 @@ def handle_main_menu_option(menu_option):
     elif menu_option == "3":  # discounts
         discount.handle_discount_menu_option()
     elif menu_option == "4":  # employee
-        return 4
+        employee_dao.handle_employee_menu_option()
     elif menu_option == "5":  # products
         Products.handle_product_menu_option()
     else:
