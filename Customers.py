@@ -44,11 +44,11 @@ def get_customers():
 
 def add_customer():
     # first name, last name, email, loyalty points, phone numbers
-    name_first_name = input("Please enter the First Name of the customer")
-    name_last_name = input("Please enter the Last Name of the customer")
-    email = input("Please enter the email of the customer")
-    loyalty_points = input("Please enter the number of loyalty points the customer has")
-    phone_number = input("Please enter the phone number of the customer")
+    name_first_name = input("Please enter the First Name of the customer: ")
+    name_last_name = input("Please enter the Last Name of the customer: ")
+    email = input("Please enter the email of the customer: ")
+    loyalty_points = input("Please enter the number of loyalty points the customer has: ")
+    phone_number = input("Please enter the phone number of the customer: ")
     # TO DO: add validation for email, loyalty_points, phone_number
     print("The customer you want to add has the following details",
           "\nFirst Name: ", name_first_name,
@@ -73,7 +73,7 @@ def add_customer():
 def edit_customer():
     is_valid_input = False
     while not is_valid_input:
-        customer_id = input("Please input the ID of the customer you want to edit. Press q to return")
+        customer_id = input("Please input the ID of the customer you want to edit. Press q to return: ")
         if customer_id == "q":
             return
         else:
@@ -84,11 +84,11 @@ def edit_customer():
                 if not customer:
                     print ("No such Customer")
                 else:
-                    name_first_name = input("Please enter the First Name of the customer or NA if you do not want to edit this field")
-                    name_last_name = input("Please enter the Last Name of the customer  or NA if you do not want to edit this field")
-                    email = input("Please enter the email of the customer  or NA if you do not want to edit this field")
-                    loyalty_points = input("Please enter the number of loyalty points the customer or NA if you do not want to edit this field")
-                    phone_number = input("Please enter the phone number of the customer  or NA if you do not want to edit this field")
+                    name_first_name = input("Please enter the First Name of the customer or NA if you do not want to edit this field: ")
+                    name_last_name = input("Please enter the Last Name of the customer  or NA if you do not want to edit this field: ")
+                    email = input("Please enter the email of the customer  or NA if you do not want to edit this field: ")
+                    loyalty_points = input("Please enter the number of loyalty points the customer or NA if you do not want to edit this field: ")
+                    phone_number = input("Please enter the phone number of the customer  or NA if you do not want to edit this field: ")
                     print("The customer you want to edit has the following details",
                           "\nCustomer ID: ", customer_id,
                           "\nFirst Name: ", name_first_name,
@@ -96,7 +96,7 @@ def edit_customer():
                           "\nEmail: ", email,
                           "\nLoyalty Points", loyalty_points,
                           "\nPhone number", phone_number)
-                    confirm_input = input("Please enter 'y' to confirm action and 'n' to cancel action")
+                    confirm_input = input("Please enter 'y' to confirm action and 'n' to cancel action: ")
                     if confirm_input == 'n':
                         return
                     else:
@@ -142,7 +142,7 @@ def edit_customer():
 def delete_customer():
     is_valid_input = False
     while not is_valid_input:
-        customer_id = input("Please input the ID of the customer you want to delete. Press q to return")
+        customer_id = input("Please input the ID of the customer you want to delete. Press q to return: ")
         if customer_id == "q":
             is_valid_input = True
             return

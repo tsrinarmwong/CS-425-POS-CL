@@ -1,76 +1,84 @@
+import mysql.connector
 import main
-import date_time
+import datetime
 import Customers as cust
 
 orders_menu = '''
-    You have selected Orders. 
+    You have selected Orders.
     Please select a menu option:
         0 Return
-        1 Create an Order
-        2 View Orders
+        1 View Orders
+        2 Add an Order
         3 Edit an Order
         4 Delete an Order
 '''
 
-def handle_customer_menu_option():
+def handle_order_menu_option():
     user_input = input(orders_menu)
     is_valid_input = False
     while not is_valid_input:
         is_valid_input = True
-        if user_input == "1": #Create
-            create_order()
-        elif user_input == "2": #Read
+        if user_input == "1": #view
             get_orders()
-        elif user_input == "3": #Update
+        elif user_input == "2": #add
+            create_order()
+        elif user_input == "3": #edit
             edit_order()
-        elif user_input == "4": #Delete
+        elif user_input == "4": #delete
             delete_order()
+        elif user_input == "0": #exit
+            break
         else:
+            print("Please enter a valid option")
             is_valid_input = False
 
 def get_customer_id_by_phone(phone_number):
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT customer_id FROM Customer WHERE phone_number = %s"
     cursor.execute(stmt, [phone_number])
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
-    return result
+        main.print_with_formating(cursor.description, [result])
+        return result[0]
+    return None
 
 def get_customer_id_latest():
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT customer_id FROM Customer ORDER BY customer_id DESC LIMIT 1"
-    cursor.execute(stmt, [customer_id])
-    result = cursor.fetchall()
+    cursor.execute(stmt)
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
-    return result
+        main.print_with_formating(cursor.description, [result])
+        return result[0]
+    return None
 
 def get_discount_id(discount_id):
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT discount_id FROM Discount WHERE discount_id = %s"
     cursor.execute(stmt, [discount_id])
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
-    return result
+        main.print_with_formating(cursor.description, [result])
+        return result[0]
+    return None
 
 def get_employee_id(employee_id):
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT employee_id FROM Employee WHERE employee_id = %s"
     cursor.execute(stmt, [employee_id])
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
-    return result
+        main.print_with_formating(cursor.description, [result])
+        return result[0]
+    return None
 
 def get_order_by_id(order_id):
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT * FROM Orders WHERE order_id = %s"
     cursor.execute(stmt, [order_id])
-    result = cursor.fetchall()
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
+        main.print_with_formating(cursor.description, [result])
     return result
 
 def get_orders():
@@ -83,114 +91,135 @@ def get_orders():
 def get_latest_order():
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT * FROM Orders ORDER BY order_id DESC LIMIT 1"
-    cursor.execute(stmt, [customer_id])
-    result = cursor.fetchall()
+    cursor.execute(stmt)
+    result = cursor.fetchone()
     if result:
-        main.print_with_formating(cursor.description, result)
+        main.print_with_formating(cursor.description, [result])
     return result
+
+def get_valid_employee_id():
+    while True:
+        employee_id = input("Please enter the employee ID (or type (q) to skip): ")
+        if employee_id.upper() == 'Q':
+            return None
+        valid_employee_id = get_employee_id(employee_id)
+        if valid_employee_id:
+            return valid_employee_id
+        else:
+            print("No employee found with the given ID. Please try again.")
+
+def get_valid_customer_id_by_phone():
+    while True:
+        cust_phone_number = input("Please enter the customer's phone number [10-digits NO DASH '-'] (or type (q) to skip): ")
+        if cust_phone_number.upper() == 'Q':
+            return None
+        valid_customer_id = get_customer_id_by_phone(cust_phone_number)
+        if valid_customer_id:
+            return valid_customer_id
+        else:
+            print("No customer found with this phone number. Please enter again.")
+
+def get_valid_discount_id():
+    while True:
+        discount_id = input("Please enter the discount ID (or type (q) to skip): ")
+        if discount_id.upper() == 'Q':
+            return None
+        valid_discount_id = get_discount_id(discount_id)
+        if valid_discount_id:
+            return valid_discount_id
+        else:
+            print("No discount found with the given ID. Please enter again.")
 
 def create_order():
     #order_id, date_time, customer_id, discount_id, *employee_id*
 
     # Ask for employee_id.
-    # Unskippable! If they got it wrong, just restart right away.
-    employee_id = input("Please enter the employee ID: ")
-    valid_employee_id = get_employee_id(employee_id)
-        if valid_employee_id:
-            employee_id = valid_employee_id
-        else:
-            print("No employee found with the given ID.")
+    while True:
+        employee_id = get_valid_employee_id()
+        if employee_id:
+            break
+        elif employee_id is None:
+            print(">>>Unskippable value! Abort adding order!")
             return
-    
-    # Ask if customer_id will be attached?    
-    attach_cust =  input("Will you attach a customer to this order? (y/n): ")
-    
-    if attach_cust.upper() == 'Y':
-        # If attached, is it a new customer?
-        new_or_existing = input("Are they a new customer? (y/n): ")
         
-        # New customer case
-        if new_or_existing.upper() == 'Y':        
-            cust.add_customer()
-            customer_id = get_customer_id_latest()
+    # Attach or skip customer.
+    while True:
+        attach_cust = input("Will you attach a CUSTOMER to this order? (y/n): ")
         
-        # Existing customer case    
-        elif new_or_existing.upper() == 'N':
-            # if the phone number is not found, give them chance to try again. or skip with q
+        if attach_cust.upper() == 'Y':
             while True:
-                cust_phone_number = input("Please enter the customer's phone number(or type (q) to skip): ")
-                
-                # Quit attach customer
-                if cust_phone_number.upper() == 'Q':
-                    customer_id = None 
+                new_or_existing = input("Are they a NEW customer? (y/n): ")
+
+                if new_or_existing.upper() == 'Y':
+                    # add customer can be ABORTED. Need to check if they actually added a new cust
+                    print(">>>Latest customer BEFORE adding");
+                    prev_last_customer = get_customer_id_latest()
+                    cust.add_customer()
+                    print(">>>Latest customer AFTER adding");
+                    curr_last_customer = get_customer_id_latest()
+
+                    if prev_last_customer == curr_last_customer:
+                        print(">>>No customer was added. Abort attaching customer.")
+                        customer_id = None
+                    else:
+                        customer_id = curr_last_customer
                     break
+                elif new_or_existing.upper() == 'N':
+                    customer_id = get_valid_customer_id_by_phone()
+                    if customer_id:
+                        break
+                    elif customer_id is None:
+                        break
                 else:
-                    valid_customer_id = get_customer_id_by_phone(cust_phone_number):
-                    if valid_customer_id:
-                        customer_id = valid_customer_id
-                        break
-                    else:
-                        print("No customer found with this phone number. Please enter again.")
+                    print(">>>New/Existing customer Invalid input! Please enter (y) for NEW or (n) for EXISITNG customer.")
+            break
+
+        elif attach_cust.upper() == 'N':
+            customer_id = None
+            break
         else:
-            print("New or Existing invalid input! Please enter (y) or (n).")
-    
-    # No attached case
-    elif attach_cust.upper() == 'N':
-        customer_id = None        
-    else:
-        print("Attach Customer invalid input! Please enter (y) or (n).")        
+            print(">>>Attach customer Invalid input! Please enter (y) to attach a customer or (n) not to.")
 
-    attach_disc =  input("Will you attach a discount to this order? (y/n): ")
-    
-    if attach_disc.upper() == 'Y':
-        # If attached
-        while True:
-            discount_id = input("Please enter the discount ID(or type (q) to skip): ")
-
-            # Quit attach discount
-            if discount_id.upper() == 'Q':
-                discount_id = None 
+    # Attach or skip discount.
+    while True:
+        attach_disc = input("Will you attach a DISCOUNT to this order? (y/n): ")
+        if attach_disc.upper() == 'Y':
+            discount_id = get_valid_discount_id()
+            if discount_id:
                 break
-            else:
-                valid_discount_id = get_discount_id(discount_id):
-                    if valid_discount_id:
-                        discount_id = valid_discount_id
-                        break
-                    else:
-                        print("No discount found with the given ID. Please enter again.")
-    # No attached case
-    elif attach_disc.upper() == 'N':
-        discount_id = None        
-    else:
-        print("Attach Discount invalid input! Please enter (y) or (n).")
+            elif discount_id is None:
+                break
+        elif attach_disc.upper() == 'N':
+            discount_id = None
+            break
+        else:
+            print(">>>Attach discount Invalid input! Please enter (y) or (n).")
 
-    # Get current date_time with the SQL format
+    # Get current date_time with the SQL format.
     date_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     print("The order you want to add has the following details",
-          "\nDate Time: ", date_time,
-          "\nCustomer Id: ", customer_id,
-          "\nDiscount Id: ", discount_id,
-          "\nEmployee Id: ", employee_id)
-    confirm_input = input("Please enter (y) to confirm action or (n) to cancel action")
+          "\n\tDate Time: ", date_time,
+          "\n\tCustomer Id: ", customer_id,
+          "\n\tDiscount Id: ", discount_id,
+          "\n\tEmployee Id: ", employee_id)
+    confirm_input = input("Please enter (y) to confirm action or (n) to cancel action: ")
     if confirm_input.upper() == 'N':
+        print(">>>Abort adding Order!")
         return
     else:
         cursor = main.mydb.cursor(prepared=True)
-
-        # Will hard setting '0' to the order_id cause it to not AUTO INCREMENT? 
-        # I'll just add only on fields imputted then.
         stmt = "INSERT INTO Orders (date_time, customer_id, discount_id, employee_id) values(%s, %s, %s, %s)"
-        tuple = (date_time, customer_id, discount_id, employee_id)
-        cursor.execute(stmt, tuple)
+        order_tuple = (date_time, customer_id, discount_id, employee_id)
+        cursor.execute(stmt, order_tuple)
         main.mydb.commit()
-        print("Order added. Here is the order detail")
+        print(">>>Order added. Here is the order detail")
         get_latest_order()
 
 def edit_order():
     is_valid_input = False
     while not is_valid_input:
-        order_id = input("Please input the ID of the order you want to edit. Press (q) to return")
+        order_id = input("Please input the ID of the order you want to edit. Press (q) to return: ")
         if order_id.upper() == "Q":
             is_valid_input = True
             return
@@ -200,107 +229,83 @@ def edit_order():
                 is_valid_input = True
                 order = get_order_by_id(order_id)
                 if not order:
-                    print ("No such order.")
+                    print (">>>No such order.")
                 else:
                     print ("The order details: ",order)
                     
                     # date_time shouldn't be editable at all.
 
-                    # Unskippable
-                    while True:
-                        employee_id = input("Please enter the new employee ID or (NA) if you do not want to edit this field")
+                    employee_id = get_valid_employee_id()
+                    customer_id = get_valid_customer_id_by_phone()
+                    discount_id = get_valid_discount_id()
 
-                        if employee_id.upper() == "NA":
-                            break
-                        # Check validity
-                        else:
-                            valid_employee_id = get_employee_id(employee_id)
-                            if valid_employee_id
-                                employee_id = valid_employee_id
-                                break
-                            else:
-                                print("No employee found with the given ID. Please enter again.")                                
-                    
-                    while True:
-                        customer_id = input("Please enter the new customer's phone number or NA if you do not want to edit this field")
-                        
-                        if customer_id.upper() == "NA":
-                            break
-                        # Check validity
-                        else:
-                            valid_customer_id = get_customer_id_by_phone(customer_id)
-                            if valid_customer_id:
-                                customer_id = valid_customer_id
-                                break
-                        else:
-                            print("No customer found with this phone number. Please enter again.")
-
-                    while True:
-                        discount_id = input("Please enter the new discount ID or NA if you do not want to edit this field")
-                        
-                        if discount_id.upper() == "NA":
-                            break
-                        # Check validity
-                        else:
-                            valid_discount_id = get_discount_id(discount_id)
-                            if valid_discount_id:
-                                discount_id = valid_discount_id
-                                break
-                        else:
-                            print("No discount found with the given ID. Please enter again.")
-                    
                     print("The order you want to edit has the following details",
-                        "\nCustomer Id: ", customer_id,
-                        "\nDiscount Id: ", discount_id,
-                        "\nEmployee Id: ", employee_id)
-                    confirm_input = input("Please enter (y) to confirm action and (n) to cancel action")
+                        "\n\tCustomer Id: ", customer_id,
+                        "\n\tDiscount Id: ", discount_id,
+                        "\n\tEmployee Id: ", employee_id)
+
+                    confirm_input = input("Please enter (y) to confirm action and (n) to cancel action: ")
                     if confirm_input.upper() == 'N':
+                        print(">>>Abort editing Order!")
                         return
                     else:
                         cursor = main.mydb.cursor(prepared=True)
-                        stmt = "UPDATE Orders SET "  # WHERE order_id = %s
+                        stmt = "UPDATE Orders SET "
                         tuple = []
-                        if customer_id.upper() != "NA":
-                            stmt = stmt + "customer_id = %s"
+
+                        if customer_id != None:
+                            stmt += "customer_id = %s, "
                             tuple.append(customer_id)
-                        if discount_id.upper() != "NA":
-                            if len(tuple) > 0:
-                                stmt = stmt + ", "
-                            stmt = stmt + "discount_id = %s"
+                        
+                        if discount_id != None:
+                            stmt += "discount_id = %s, "
                             tuple.append(discount_id)
-                        if employee_id.upper() != "NA":
-                            if len(tuple) > 0:
-                                stmt = stmt + ", "
-                            stmt = stmt + "employee_id = %s"
+                        
+                        if employee_id != None:
+                            stmt += "employee_id = %s, "
                             tuple.append(employee_id)
+
                         if len(tuple) == 0:
-                            print("No fields updated to this order.")
+                            print(">>>No fields updated to this order.")
                         else:
-                            stmt = stmt + " WHERE order_id = %s"
+                            stmt = stmt.rstrip(', ') + " WHERE order_id = %s"
                             tuple.append(order_id)
-                            print(stmt, tuple)
                             cursor.execute(stmt, tuple)
                             main.mydb.commit()
-                            print("Order ", order_id, " edited. Here is the updated Order:")
+                            print(">>>Order ", order_id, " edited. Here is the updated Order:")
                             get_order_by_id(order_id)
+
             except ValueError:
-                print("Please enter an integer")
+                print(">>>Please enter an integer")
 
 def delete_order():
     is_valid_input = False
     while not is_valid_input:
-        order_id = input("Please input the ID of the order you want to delete. Press (q) to return")
+        order_id = input("Please input the ID of the order you want to delete. Press (q) to return: ")
         if order_id.upper() == "Q":
             is_valid_input = True
             return
         else:
             try:
                 order_id = int(order_id)
-                is_valid_input = True
-                cursor = main.mydb.cursor(prepared=True)
-                stmt = "DELETE FROM Orders WHERE order_id = %s"
-                cursor.execute(stmt, [order_id])
-                main.mydb.commit()
-                print("Order ", order_id, " deleted.")
+                order = get_order_by_id(order_id)
+                if not order:
+                    print (">>>No such order.")
+                else:
+                    is_valid_input = True
+                    # Delete order
+                    cursor = main.mydb.cursor(prepared=True)
+                    delete_stmt = "DELETE FROM Orders WHERE order_id = %s"
+                    cursor.execute(delete_stmt, [order_id])
+                    main.mydb.commit()
+
+                    # Check rows affected after deletion
+                    if cursor.rowcount:
+                        print(f">>>Order {order_id} deleted.")
+                    else:
+                        print(f">>>Failed to delete order {order_id}.")
+                        
             except ValueError:
-                print("Please enter an integer")
+                print(">>>Please enter a valid integer for the order ID.")
+            except Exception as e:
+                print(f">>>An error occurred: {e}")
