@@ -114,7 +114,7 @@ def create_payment(order_id_continue):
 	if order_id_continue is None:
 		# Get & check order_id
 		while True:
-			order_id = get_valid_order_id()
+			order_id = ordp.get_valid_order_id()
 			if order_id:
 				break # Exit order ID loop
 			elif order_id is None:
