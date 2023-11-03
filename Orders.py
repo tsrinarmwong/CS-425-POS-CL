@@ -18,7 +18,11 @@ def handle_order_menu_option():
     is_valid_input = False
     while not is_valid_input:
         is_valid_input = True
-        if user_input == "1": #view
+        if user_input == "0":
+            return
+        if user_input == "1": #Create
+            create_order()
+        elif user_input == "2": #Read
             get_orders()
         elif user_input == "2": #add
             create_order()
@@ -46,7 +50,7 @@ def get_customer_id_latest():
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT customer_id FROM Customer ORDER BY customer_id DESC LIMIT 1"
     cursor.execute(stmt)
-    result = cursor.fetchone()
+    result = cursor.fetchall()
     if result:
         main.print_with_formating(cursor.description, [result])
         return result[0]
@@ -92,7 +96,7 @@ def get_latest_order():
     cursor = main.mydb.cursor(prepared=True)
     stmt = "SELECT * FROM Orders ORDER BY order_id DESC LIMIT 1"
     cursor.execute(stmt)
-    result = cursor.fetchone()
+    result = cursor.fetchall()
     if result:
         main.print_with_formating(cursor.description, [result])
     return result
