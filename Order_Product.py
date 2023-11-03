@@ -129,7 +129,7 @@ def create_Order_Product(order_id_continue):
 				return
 	# Starting after orders created
 	else:
-		order_id = order_id_continue
+		order_id = order_id_continue[0]
 	
 	# Add item loop
 	while True:
