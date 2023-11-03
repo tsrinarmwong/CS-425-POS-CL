@@ -13,6 +13,8 @@ orders_menu = '''
         2 Add an Order
         3 Edit an Order
         4 Delete an Order
+        8 Add Product(s) to Order
+        9 Add Payment to Order
 '''
 
 def handle_order_menu_option():
@@ -30,6 +32,10 @@ def handle_order_menu_option():
             edit_order()
         elif user_input == "4": #delete
             delete_order()
+        elif user_input == "8": #delete
+            ordp.create_Order_Product(None)
+        elif user_input == "9": #delete
+            paym.create_payment(None)
         elif user_input == "0": #exit
             break
         else:
