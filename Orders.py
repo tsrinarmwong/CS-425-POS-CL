@@ -2,6 +2,8 @@ import mysql.connector
 import main
 import datetime
 import Customers as cust
+import Order_Product as ordp
+import Payment as paym
 
 orders_menu = '''
     You have selected Orders.
@@ -20,9 +22,7 @@ def handle_order_menu_option():
         is_valid_input = True
         if user_input == "0":
             return
-        if user_input == "1": #Create
-            create_order()
-        elif user_input == "2": #Read
+        elif user_input == "1": #Read
             get_orders()
         elif user_input == "2": #add
             create_order()
@@ -211,14 +211,37 @@ def create_order():
     if confirm_input.upper() == 'N':
         print(">>>Abort adding Order!")
         return
-    else:
+    elif confirm_input.upper() == 'Y':
         cursor = main.mydb.cursor(prepared=True)
         stmt = "INSERT INTO Orders (date_time, customer_id, discount_id, employee_id) values(%s, %s, %s, %s)"
         order_tuple = (date_time, customer_id, discount_id, employee_id)
         cursor.execute(stmt, order_tuple)
         main.mydb.commit()
         print(">>>Order added. Here is the order detail")
-        get_latest_order()
+        order_id_continue = get_latest_order()[0]
+        
+        # Add product
+        add_product = input("Will you add PRODUCT(s) to this order right away? (y/n): ")
+        if add_product.upper() == 'N':
+            print(">>>Abort adding Product!")
+            return
+        elif add_product.upper() == 'Y':
+            ordp.create_Order_Product(order_id_continue)
+        else:
+            print(">>>Add product Invalid input! Please enter (y) or (n).")
+
+        # Add payment
+        add_payment = input("Will you add Payment to this order right away? (y/n): ")
+        if add_payment.upper() == 'N':
+            print(">>>Abort adding Payment!")
+            return
+        elif add_payment.upper() == 'Y':
+            paym.create_payment(order_id_continue)
+            return
+        else:
+            print(">>>Add product Invalid input! Please enter (y) or (n).")
+    else:
+        print(">>>Confirmation Invalid input! Please enter (y) or (n).")
 
 def edit_order():
     is_valid_input = False
@@ -252,7 +275,7 @@ def edit_order():
                     if confirm_input.upper() == 'N':
                         print(">>>Abort editing Order!")
                         return
-                    else:
+                    elif confirm_input.upper() == 'Y':
                         cursor = main.mydb.cursor(prepared=True)
                         stmt = "UPDATE Orders SET "
                         tuple = []
@@ -278,6 +301,8 @@ def edit_order():
                             main.mydb.commit()
                             print(">>>Order ", order_id, " edited. Here is the updated Order:")
                             get_order_by_id(order_id)
+                    else:
+                        print(">>>Confirmation Invalid input! Please enter (y) or (n).")
 
             except ValueError:
                 print(">>>Please enter an integer")
@@ -296,19 +321,26 @@ def delete_order():
                 if not order:
                     print (">>>No such order.")
                 else:
-                    is_valid_input = True
-                    # Delete order
-                    cursor = main.mydb.cursor(prepared=True)
-                    delete_stmt = "DELETE FROM Orders WHERE order_id = %s"
-                    cursor.execute(delete_stmt, [order_id])
-                    main.mydb.commit()
+                    print ("The order details: ",order)
+                    confirm_input = input("Please enter (y) to confirm action and (n) to cancel action: ")
+                    if confirm_input.upper() == 'N':
+                        print(">>>Abort deleting Order!")
+                        return
+                    elif confirm_input.upper() == 'Y':
+                        is_valid_input = True
+                        # Delete order
+                        cursor = main.mydb.cursor(prepared=True)
+                        delete_stmt = "DELETE FROM Orders WHERE order_id = %s"
+                        cursor.execute(delete_stmt, [order_id])
+                        main.mydb.commit()
 
-                    # Check rows affected after deletion
-                    if cursor.rowcount:
-                        print(f">>>Order {order_id} deleted.")
+                        # Check rows affected after deletion
+                        if cursor.rowcount:
+                            print(f">>>Order {order_id} deleted.")
+                        else:
+                            print(f">>>Failed to delete order {order_id}.")
                     else:
-                        print(f">>>Failed to delete order {order_id}.")
-                        
+                        print(">>>Confirmation Invalid input! Please enter (y) or (n).")
             except ValueError:
                 print(">>>Please enter a valid integer for the order ID.")
             except Exception as e:
