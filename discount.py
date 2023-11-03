@@ -15,6 +15,8 @@ def handle_discount_menu_option():
     is_valid_input = False
     while not is_valid_input:
         is_valid_input = True
+        if user_input == "0":
+            return
         if user_input == "1":  # view
             get_discounts()
         elif user_input == "2":  # add

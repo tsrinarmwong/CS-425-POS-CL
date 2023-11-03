@@ -3,9 +3,11 @@ import mysql.connector
 from tabulate import tabulate
 
 import Customers
+import Products
 import discount
 import db
 import employee_dao
+import Orders
 
 mydb = mysql.connector.connect(
         host=db.host,
@@ -27,7 +29,7 @@ main_menu = '''
 
 def handle_main_menu_option(menu_option):
     if menu_option == "1":  # orders
-        return 1
+        Orders.handle_order_menu_option()
     elif menu_option == "2":  # customers
         Customers.handle_customer_menu_option()
     elif menu_option == "3":  # discounts

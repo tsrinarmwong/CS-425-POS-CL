@@ -1,5 +1,5 @@
 import main
-from db_entity.employee import Employee
+from employee import Employee
 
 EMPLOYEE_OPERATION_MENU = '''
     You have selected the employee table. 
@@ -39,7 +39,7 @@ def get_employee_by_id(employee_id):
 
     cursor.close()
     return employee
-`
+
 
 def get_employees():
     cursor = main.mydb.cursor(prepared=True)
