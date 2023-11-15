@@ -8,6 +8,7 @@ import discount
 import db
 import employee_dao
 import Orders
+import OLAP
 
 mydb = mysql.connector.connect(
         host=db.host,
@@ -25,6 +26,7 @@ main_menu = '''
         3 Discounts
         4 Employees
         5 Products
+        6 OLAP
 '''
 
 def handle_main_menu_option(menu_option):
@@ -38,6 +40,8 @@ def handle_main_menu_option(menu_option):
         employee_dao.handle_employee_menu_option()
     elif menu_option == "5":  # products
         Products.handle_product_menu_option()
+    elif menu_option == "6": # OLAP
+        OLAP.handle_OLAP_menu_option()
     else:
         print("Please enter a valid option")
 
