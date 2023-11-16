@@ -39,6 +39,8 @@ def handle_OLAP_menu_option():
             print("Please enter a valid option")
             is_valid_input = False
 
+import datetime
+
 def get_valid_date(prompt):
     while True:
         date_str = input(prompt)
@@ -225,17 +227,13 @@ def get_customer_retention_date_range():
             GROUP BY customer_id
         )
         SELECT
-            o.customer_id,
-            o.order_id,
             DATE(o.date_time) AS order_date,
-            CASE 
-                WHEN DATE(o.date_time) = DATE(f.first_order_date) THEN 'NEW' 
-                ELSE 'OLD' 
-            END AS retention
+            COUNT(CASE WHEN DATE(o.date_time) = DATE(f.first_order_date) THEN 1 END) AS NEW_customers,
+            COUNT(CASE WHEN DATE(o.date_time) != DATE(f.first_order_date) THEN 1 END) AS OLD_customers
         FROM orders o
         JOIN FirstOrderDate f ON o.customer_id = f.customer_id
         WHERE o.date_time BETWEEN %s AND %s
-          AND o.customer_id IS NOT NULL
+        GROUP BY order_date
         ORDER BY order_date ASC;
         """
     cursor.execute(stmt, [date_from, date_to_end_of_day])
