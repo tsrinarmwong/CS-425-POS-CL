@@ -39,8 +39,6 @@ def handle_OLAP_menu_option():
             print("Please enter a valid option")
             is_valid_input = False
 
-import datetime
-
 def get_valid_date(prompt):
     while True:
         date_str = input(prompt)
