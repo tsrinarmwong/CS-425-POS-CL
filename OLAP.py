@@ -227,7 +227,8 @@ def get_customer_retention_date_range():
         SELECT
             DATE(o.date_time) AS order_date,
             COUNT(CASE WHEN DATE(o.date_time) = DATE(f.first_order_date) THEN 1 END) AS NEW_customers,
-            COUNT(CASE WHEN DATE(o.date_time) != DATE(f.first_order_date) THEN 1 END) AS OLD_customers
+            COUNT(CASE WHEN DATE(o.date_time) != DATE(f.first_order_date) THEN 1 END) AS OLD_customers,
+            COUNT(CASE WHEN o.customer_id IS NULL THEN 1 END) AS unregistered_customers
         FROM orders o
         JOIN FirstOrderDate f ON o.customer_id = f.customer_id
         WHERE o.date_time BETWEEN %s AND %s
